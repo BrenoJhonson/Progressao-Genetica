@@ -1,0 +1,14 @@
+Log da evolução
+Geração 1: Melhor=0.00, Médio=0.00, Pior=0.00
+Geração 2: Melhor=49.30, Médio=19.51, Pior=0.00
+Geração 3: Melhor=49.50, Médio=19.52, Pior=0.00
+Geração 4: Melhor=49.50, Médio=19.23, Pior=0.00
+Geração 5: Melhor=49.50, Médio=0.00, Pior=0.00
+Geração 1: Melhor=1110.79, Médio=114.96, Pior=0.00
+Geração 2: Melhor=1124.89, Médio=98.88, Pior=0.00
+Geração 3: Melhor=1124.89, Médio=40.58, Pior=0.00
+Geração 4: Melhor=1124.89, Médio=34.45, Pior=0.00
+Geração 5: Melhor=1124.89, Médio=0.00, Pior=0.00
+Geração 6: Melhor=1124.89, Médio=124.66, Pior=0.00
+Geração 7: Melhor=1124.89, Médio=93.14, Pior=0.00
+Geração 8: Melhor=1124.89, Médio=88.00, Pior=0.00

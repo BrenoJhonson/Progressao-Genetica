@@ -5,6 +5,7 @@ import matplotlib.patches as patches
 import matplotlib.animation as animation
 import json
 import time
+import pandas as pd
 
 # =====================================================================
 # PARTE 1: ESTRUTURA DA SIMULAÇÃO (NÃO MODIFICAR)
@@ -233,6 +234,8 @@ class Robo:
         # Verificar coleta de recursos
         recursos_coletados = ambiente.verificar_coleta_recursos(self.x, self.y, self.raio)
         self.recursos_coletados += recursos_coletados
+        if recursos_coletados > 0:
+            self.energia = min(100, self.energia + 20 * recursos_coletados)
         
         # Verificar se atingiu a meta
         if not self.meta_atingida and ambiente.verificar_atingir_meta(self.x, self.y, self.raio):
@@ -635,7 +638,7 @@ class IndividuoPG:
         else:  # min
             return min(esquerda, direita)
     
-    def mutacao(self, probabilidade=0.1):
+    def mutacao(self, probabilidade=0.3):
         # PROBABILIDADE DE MUTAÇÃO PARA O ALUNO MODIFICAR
         self.mutacao_no(self.arvore_aceleracao, probabilidade)
         self.mutacao_no(self.arvore_rotacao, probabilidade)
@@ -644,7 +647,7 @@ class IndividuoPG:
         if random.random() < probabilidade:
             if no['tipo'] == 'folha':
                 if 'valor' in no:
-                    no['valor'] = random.uniform(-5, 5)  # VALOR ALEATÓRIO PARA O ALUNO MODIFICAR
+                    no['valor'] = random.uniform(0, 10)  # VALOR ALEATÓRIO PARA O ALUNO MODIFICAR
                 elif 'variavel' in no:
                     no['variavel'] = random.choice(['dist_recurso', 'dist_obstaculo', 'dist_meta', 'angulo_recurso', 'angulo_meta', 'energia', 'velocidade', 'meta_atingida'])
             else:
@@ -663,10 +666,23 @@ class IndividuoPG:
     
     def crossover_no(self, no1, no2):
         # PROBABILIDADE DE CROSSOVER PARA O ALUNO MODIFICAR
-        if random.random() < 0.5:
-            return no1.copy()
+        if no1['tipo'] == 'folha' or no2['tipo'] == 'folha':
+            return random.choice([no1, no2]).copy()
+
+        if random.random() < 0.5:  # 50% de chance de escolher o operador do primeiro indivíduo
+            return {
+                'tipo': 'operador',
+                'operador': no1['operador'],
+                'esquerda': self.crossover_no(no1['esquerda'], no2['esquerda']),
+                'direita': self.crossover_no(no1['direita'], no2['direita']) if no1['direita'] and no2['direita'] else None
+            }
         else:
-            return no2.copy()
+            return {
+                'tipo': 'operador',
+                'operador': no2['operador'],
+                'esquerda': self.crossover_no(no1['esquerda'], no2['esquerda']),
+                'direita': self.crossover_no(no1['direita'], no2['direita']) if no1['direita'] and no2['direita'] else None
+            }
     
     def salvar(self, arquivo):
         with open(arquivo, 'w') as f:
@@ -701,8 +717,8 @@ class ProgramacaoGenetica:
         for individuo in self.populacao:
             fitness = 0
             
-            # Simular 5 tentativas
-            for _ in range(5):
+            # Simular 10 tentativas
+            for _ in range(10):
                 ambiente.reset()
                 robo.reset(ambiente.largura // 2, ambiente.altura // 2)
                 
@@ -728,9 +744,9 @@ class ProgramacaoGenetica:
                 # Calcular fitness
                 fitness_tentativa = (
                     robo.recursos_coletados * 100 +  # Pontos por recursos coletados
-                    robo.distancia_percorrida * 0.1 -  # Pontos por distância percorrida
-                    robo.colisoes * 50 -  # Penalidade por colisões
-                    (100 - robo.energia) * 0.5  # Penalidade por consumo de energia
+                    robo.distancia_percorrida * 0.05 -  # Pontos por distância percorrida
+                    robo.colisoes * 30 -  # Penalidade por colisões
+                    (100 - robo.energia) * 0.2  # Penalidade por consumo de energia
                 )
                 
                 # Adicionar pontos extras por atingir a meta
@@ -749,7 +765,7 @@ class ProgramacaoGenetica:
     def selecionar(self):
         # MÉTODO DE SELEÇÃO PARA O ALUNO MODIFICAR
         # Seleção por torneio
-        tamanho_torneio = 3  # TAMANHO DO TORNEIO PARA O ALUNO MODIFICAR
+        tamanho_torneio = 4  # TAMANHO DO TORNEIO PARA O ALUNO MODIFICAR
         selecionados = []
         
         for _ in range(self.tamanho_populacao):
@@ -761,34 +777,59 @@ class ProgramacaoGenetica:
     
     def evoluir(self, n_geracoes=50):
         # NÚMERO DE GERAÇÕES PARA O ALUNO MODIFICAR
+
         for geracao in range(n_geracoes):
-            print(f"Geração {geracao + 1}/{n_geracoes}")
-            
+            print(f"\nGeração {geracao + 1}/{n_geracoes}")
+
             # Avaliar população
             self.avaliar_populacao()
-            
-            # Registrar melhor fitness
-            self.historico_fitness.append(self.melhor_fitness)
-            print(f"Melhor fitness: {self.melhor_fitness:.2f}")
-            
+
+            # Registrar métricas
+            fitness_geracao = [ind.fitness for ind in self.populacao]
+            fitness_medio = sum(fitness_geracao) / len(fitness_geracao)
+            pior_fitness = min(fitness_geracao)
+            melhor_fitness = self.melhor_fitness
+
+            # Adicionar ao histórico
+            self.historico_fitness.append(melhor_fitness)
+
+            # Mostrar na tela
+            print(f"Melhor fitness: {melhor_fitness:.2f}")
+            print(f"Fitness médio: {fitness_medio:.2f}, Pior fitness: {pior_fitness:.2f}")
+
+            # Escrever no log
+            with open("log.txt", "a") as f:
+                f.write(f"Geração {geracao + 1}: Melhor={melhor_fitness:.2f}, Médio={fitness_medio:.2f}, Pior={pior_fitness:.2f}\n")
+
             # Selecionar indivíduos
             selecionados = self.selecionar()
-            
+
             # Criar nova população
             nova_populacao = []
-            
+
             # Elitismo - manter o melhor indivíduo
             nova_populacao.append(self.melhor_individuo)
-            
+
             # Preencher o resto da população
             while len(nova_populacao) < self.tamanho_populacao:
                 pai1, pai2 = random.sample(selecionados, 2)
                 filho = pai1.crossover(pai2)
-                filho.mutacao(probabilidade=0.1)  # PROBABILIDADE DE MUTAÇÃO PARA O ALUNO MODIFICAR
+                filho.mutacao(probabilidade=0.1)  # Probabilidade de mutação
                 nova_populacao.append(filho)
-            
-            self.populacao = nova_populacao
-        
+
+        self.populacao = nova_populacao
+
+        # Após a última geração, gerar gráfico
+        plt.plot(self.historico_fitness, label='Melhor Fitness')
+        plt.xlabel('Geração')
+        plt.ylabel('Fitness')
+        plt.title('Evolução do Melhor Fitness')
+        plt.grid()
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig('grafico_fitness.png')
+        plt.show()
+
         return self.melhor_individuo, self.historico_fitness
 
 # =====================================================================
@@ -804,7 +845,7 @@ if __name__ == "__main__":
     print("Treinando o algoritmo genético...")
     # PARÂMETROS PARA O ALUNO MODIFICAR
     pg = ProgramacaoGenetica(tamanho_populacao=20, profundidade=4)
-    melhor_individuo, historico = pg.evoluir(n_geracoes=5)
+    melhor_individuo, historico = pg.evoluir(n_geracoes=8)
     
     # Salvar o melhor indivíduo
     print("Salvando o melhor indivíduo...")
@@ -812,7 +853,7 @@ if __name__ == "__main__":
     
     # Plotar evolução do fitness
     print("Plotando evolução do fitness...")
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(5, 10))
     plt.plot(historico)
     plt.title('Evolução do Fitness')
     plt.xlabel('Geração')
