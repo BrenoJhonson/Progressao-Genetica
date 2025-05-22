@@ -585,7 +585,7 @@ class IndividuoPG:
         if tipo == 'constante':
             return {
                 'tipo': 'folha',
-                'valor': random.uniform(-5, 5)  # VALOR ALEATÓRIO PARA O ALUNO MODIFICAR
+                'valor': round(random.uniform(-5.0, 5.0), 3)  # VALOR ALEATÓRIO PARA O ALUNO MODIFICAR
             }
         else:
             return {
@@ -716,9 +716,10 @@ class ProgramacaoGenetica:
         
         for individuo in self.populacao:
             fitness = 0
+            attempt = 10
             
             # Simular 10 tentativas
-            for _ in range(10):
+            for _ in range(attempt):
                 ambiente.reset()
                 robo.reset(ambiente.largura // 2, ambiente.altura // 2)
                 
@@ -743,19 +744,21 @@ class ProgramacaoGenetica:
                 
                 # Calcular fitness
                 fitness_tentativa = (
-                    robo.recursos_coletados * 100 +  # Pontos por recursos coletados
-                    robo.distancia_percorrida * 0.05 -  # Pontos por distância percorrida
-                    robo.colisoes * 30 -  # Penalidade por colisões
-                    (100 - robo.energia) * 0.2  # Penalidade por consumo de energia
+                    (robo.recursos_coletados * 200) +  # Pontos por recursos coletados
+                    (robo.distancia_percorrida * 0.05) -  # Pontos por distância percorrida
+                    (robo.colisoes * 10) -  # Penalidade por colisões
+                    ((100 - robo.energia) * 0.4)  # Penalidade por consumo de energia
                 )
+
+                
                 
                 # Adicionar pontos extras por atingir a meta
-                if robo.meta_atingida:
+                if robo.meta_atingida and robo.meta_atingida == False:
                     fitness_tentativa += 500  # Pontos extras por atingir a meta
                 
                 fitness += max(0, fitness_tentativa)
             
-            individuo.fitness = fitness / 5  # Média das 5 tentativas
+            individuo.fitness = fitness / attempt  # Média das 5 tentativas
             
             # Atualizar melhor indivíduo
             if individuo.fitness > self.melhor_fitness:
@@ -814,7 +817,7 @@ class ProgramacaoGenetica:
             while len(nova_populacao) < self.tamanho_populacao:
                 pai1, pai2 = random.sample(selecionados, 2)
                 filho = pai1.crossover(pai2)
-                filho.mutacao(probabilidade=0.1)  # Probabilidade de mutação
+                filho.mutacao(probabilidade=0.3)  # Probabilidade de mutação
                 nova_populacao.append(filho)
 
         self.populacao = nova_populacao
@@ -844,7 +847,7 @@ if __name__ == "__main__":
     # Criar e treinar o algoritmo genético
     print("Treinando o algoritmo genético...")
     # PARÂMETROS PARA O ALUNO MODIFICAR
-    pg = ProgramacaoGenetica(tamanho_populacao=20, profundidade=4)
+    pg = ProgramacaoGenetica(tamanho_populacao=30, profundidade=4)
     melhor_individuo, historico = pg.evoluir(n_geracoes=8)
     
     # Salvar o melhor indivíduo
