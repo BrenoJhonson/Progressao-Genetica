@@ -234,8 +234,6 @@ class Robo:
         # Verificar coleta de recursos
         recursos_coletados = ambiente.verificar_coleta_recursos(self.x, self.y, self.raio)
         self.recursos_coletados += recursos_coletados
-        if recursos_coletados > 0:
-            self.energia = min(100, self.energia + 20 * recursos_coletados)
         
         # Verificar se atingiu a meta
         if not self.meta_atingida and ambiente.verificar_atingir_meta(self.x, self.y, self.raio):
@@ -732,8 +730,8 @@ class ProgramacaoGenetica:
                     rotacao = individuo.avaliar(sensores, 'rotacao')
                     
                     # Limitar valores
-                    aceleracao = max(-1, min(1, aceleracao))
-                    rotacao = max(-0.5, min(0.5, rotacao))
+                    aceleracao = max(-1, min(2, aceleracao))
+                    rotacao = max(-0.5, min(0.8, rotacao))
                     
                     # Mover robô
                     sem_energia = robo.mover(aceleracao, rotacao, ambiente)
@@ -817,7 +815,7 @@ class ProgramacaoGenetica:
             while len(nova_populacao) < self.tamanho_populacao:
                 pai1, pai2 = random.sample(selecionados, 2)
                 filho = pai1.crossover(pai2)
-                filho.mutacao(probabilidade=0.3)  # Probabilidade de mutação
+                filho.mutacao(probabilidade=0.4)  # Probabilidade de mutação
                 nova_populacao.append(filho)
 
         self.populacao = nova_populacao
@@ -847,8 +845,8 @@ if __name__ == "__main__":
     # Criar e treinar o algoritmo genético
     print("Treinando o algoritmo genético...")
     # PARÂMETROS PARA O ALUNO MODIFICAR
-    pg = ProgramacaoGenetica(tamanho_populacao=30, profundidade=4)
-    melhor_individuo, historico = pg.evoluir(n_geracoes=8)
+    pg = ProgramacaoGenetica(tamanho_populacao=100, profundidade=4)
+    melhor_individuo, historico = pg.evoluir(n_geracoes=6)
     
     # Salvar o melhor indivíduo
     print("Salvando o melhor indivíduo...")
