@@ -546,9 +546,7 @@ class IndividuoPG:
             return self.criar_folha()
         
         # OPERADORES DISPONÍVEIS PARA O ALUNO MODIFICAR
-        # original = operador = random.choice(['+', '-', '*', '/', 'max', 'min', 'abs', 'if_positivo', 'if_negativo'])
-        operador = random.choice(['+', '-', '*', '/', 'max', 'min', 'abs', 'if_positivo', 'if_negativo', 'sin', 'cos'])
-
+        operador = random.choice(['+', '-', '*', '/', 'max', 'min', 'abs', 'if_positivo', 'if_negativo'])
         if operador in ['+', '-', '*', '/']:
             return {
                 'tipo': 'operador',
@@ -580,7 +578,7 @@ class IndividuoPG:
     
     def criar_folha(self):
         # VARIÁVEIS DISPONÍVEIS PARA O ALUNO MODIFICAR
-        tipo = random.choicetipo = random.choice(['constante','dist_meta','angulo_meta','energia','dist_obstaculo','velocidade'])
+        tipo = random.choice(['constante', 'dist_recurso', 'dist_obstaculo', 'dist_meta', 'angulo_recurso', 'angulo_meta', 'energia', 'velocidade', 'meta_atingida'])
         if tipo == 'constante':
             return {
                 'tipo': 'folha',
@@ -620,10 +618,6 @@ class IndividuoPG:
                 return self.avaliar_no(no['direita'], sensores)
             else:
                 return 0
-        elif no['operador'] == 'sin':
-            return np.sin(self.avaliar_no(no['esquerda'], sensores))
-        elif no['operador'] == 'cos':
-            return np.cos(self.avaliar_no(no['esquerda'], sensores))
         
         esquerda = self.avaliar_no(no['esquerda'], sensores)
         direita = self.avaliar_no(no['direita'], sensores) if no['direita'] is not None else 0
@@ -732,24 +726,16 @@ class ProgramacaoGenetica:
                         break
                 
                 # Calcular fitness
-
-                # Sensor da distância à meta
-                dist_meta = sensores['dist_meta']
                 fitness_tentativa = (
-                    # original = 100
-                    robo.recursos_coletados * 150 +  # Pontos por recursos coletados
-                    # original = robo.distancia_percorrida * 0.1 -  # Pontos por distância percorrida
-                    (600 - dist_meta) * 0.5 -  # bônus se se aproximar da meta
-                     # original = 50
-                    robo.colisoes * 30 -  # Penalidade por colisões
-                     # original = (100 - robo.energia) * 0.5 # Penalidade por consumo de energia
-                     robo.tempo_parado * 5 -
-                    (100 - robo.energia) * 0.1  
+                    robo.recursos_coletados * 100 +  # Pontos por recursos coletados
+                    robo.distancia_percorrida * 0.1 -  # Pontos por distância percorrida
+                    robo.colisoes * 50 -  # Penalidade por colisões
+                    (100 - robo.energia) * 0.5  # Penalidade por consumo de energia
                 )
                 
                 # Adicionar pontos extras por atingir a meta
                 if robo.meta_atingida:
-                    fitness_tentativa += 1000  # # original = 500 Pontos extras por atingir a meta
+                    fitness_tentativa += 500  # Pontos extras por atingir a meta
                 
                 fitness += max(0, fitness_tentativa)
             
@@ -784,12 +770,7 @@ class ProgramacaoGenetica:
             # Registrar melhor fitness
             self.historico_fitness.append(self.melhor_fitness)
             print(f"Melhor fitness: {self.melhor_fitness:.2f}")
-
-            # media_fitness = sum(i.fitness for i in self.populacao) / len(self.populacao)
-            # self.historico_fitness.append((self.melhor_fitness, media_fitness))
-            media_fitness = sum(i.fitness for i in self.populacao) / len(self.populacao)
-            self.historico_fitness.append((self.melhor_fitness, media_fitness))
-
+            
             # Selecionar indivíduos
             selecionados = self.selecionar()
             
@@ -797,18 +778,13 @@ class ProgramacaoGenetica:
             nova_populacao = []
             
             # Elitismo - manter o melhor indivíduo
-            # original = nova_populacao.append(self.melhor_individuo)
-            # Elitismo - manter os 2 melhores indivíduos
-            elite = sorted(self.populacao, key=lambda i: i.fitness, reverse=True)[:2]
-            nova_populacao.extend(elite)
-
+            nova_populacao.append(self.melhor_individuo)
             
             # Preencher o resto da população
             while len(nova_populacao) < self.tamanho_populacao:
                 pai1, pai2 = random.sample(selecionados, 2)
                 filho = pai1.crossover(pai2)
-                # original = filho.mutacao(probabilidade=0.1)  # PROBABILIDADE DE MUTAÇÃO PARA O ALUNO MODIFICAR
-                filho.mutacao(probabilidade=0.2)
+                filho.mutacao(probabilidade=0.1)  # PROBABILIDADE DE MUTAÇÃO PARA O ALUNO MODIFICAR
                 nova_populacao.append(filho)
             
             self.populacao = nova_populacao
@@ -837,7 +813,7 @@ if __name__ == "__main__":
     # Plotar evolução do fitness
     print("Plotando evolução do fitness...")
     plt.figure(figsize=(10, 5))
-    plt.legend()
+    plt.plot(historico)
     plt.title('Evolução do Fitness')
     plt.xlabel('Geração')
     plt.ylabel('Fitness')
