@@ -1017,7 +1017,7 @@ class ProgramacaoGenetica:
                     fitness += 20000  # Bônus por atingir a meta
 
                 fitness += robo.energia * 80  # Energia como fator proporcional
-                fitness += robo.passos * 10  # 10 pontos por frame onde o robô se move
+                fitness += passos * 10  # 10 pontos por frame onde o robô se move
 
                 # Penalizações (reduzidas)
                 fitness -= robo.colisoes * 500
