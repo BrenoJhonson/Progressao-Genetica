@@ -1009,32 +1009,33 @@ class ProgramacaoGenetica:
                 fitness = 0
 
                 # Pontuação positiva
-                fitness += robo.recursos_coletados * 5000  # 5.000 pontos por recurso
+                fitness += robo.recursos_coletados * 7500
                 if robo.recursos_coletados == recursos_iniciais:
-                    fitness += 10000  # Bônus por coletar todos os recursos
+                    fitness += 15000  # Bônus por coletar todos os recursos
 
                 if ambiente.verificar_atingir_meta(robo.x, robo.y, robo.raio):
-                    fitness += 15000  # Bônus por atingir a meta
+                    fitness += 20000  # Bônus por atingir a meta
 
-                fitness += robo.energia * 50  # Energia como fator proporcional
+                fitness += robo.energia * 80  # Energia como fator proporcional
+                fitness += robo.passos * 10  # 10 pontos por frame onde o robô se move
 
-                # Penalizações (subtração simples, sem multiplicação)
-                fitness -= robo.colisoes * 1000
-                fitness -= tempo_parado * 50
-                fitness -= tempo_sem_progresso * 100
-                fitness -= (recursos_iniciais - robo.recursos_coletados) * 3000
+                # Penalizações (reduzidas)
+                fitness -= robo.colisoes * 500
+                fitness -= tempo_parado * 25
+                fitness -= tempo_sem_progresso * 50
+                fitness -= (recursos_iniciais - robo.recursos_coletados) * 1500
 
                 # Penalizar distância até a meta (se não atingiu)
                 if not ambiente.verificar_atingir_meta(robo.x, robo.y, robo.raio):
                     dist_final = np.sqrt((robo.x - objetivo['x'])**2 + (robo.y - objetivo['y'])**2)
-                    fitness -= dist_final * 10
+                    fitness -= dist_final * 5
 
                 # Garantir que o fitness não seja negativo
                 fitness = max(fitness, 0)
 
                 melhor_fitness = max(melhor_fitness, fitness)
-            
-            individuo.fitness = melhor_fitness
+                
+                individuo.fitness = melhor_fitness
             
             # Atualizar melhor indivíduo
             if individuo.fitness > self.melhor_fitness:
