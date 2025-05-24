@@ -21,7 +21,7 @@ Este projeto implementa uma simulação de um robô autônomo que utiliza progra
 
 1. Clone o repositório:
 ```bash
-git clone [URL_DO_REPOSITÓRIO]
+git clone (https://github.com/BrenoJhonson/Progressao-Genetica)
 ```
 
 2. Instale as dependências:
