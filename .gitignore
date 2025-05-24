@@ -1,5 +1,8 @@
-#evolucao_fitness_robo.png
-#grafico_fitness.png
-#log.txt
-#melhor_robo.json
+evolucao_fitness_robo.png
+grafico_fitness.png
+log.txt
+melhor_robo.json
 variaveis.png
+boxplot_fitness.png
+diferenca_melhor_pior.png
+histograma_fitness_medio.png
