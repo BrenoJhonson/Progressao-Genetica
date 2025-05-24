@@ -1113,7 +1113,7 @@ class ProgramacaoGenetica:
         return self.melhor_individuo, self.historico_fitness
 
 # =====================================================================
-# PARTE 3: EXECUÇÃO DO PROGRAMA (PARA O ALUNO MODIFICAR)
+# PARTE 3: EXECUÇÃO DO PROGRAMA (PARA O ALUNO MODIFICAR) 
 # Esta parte contém a execução do programa e os parâmetros finais.
 # =====================================================================
 
