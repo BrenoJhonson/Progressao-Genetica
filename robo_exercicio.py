@@ -1016,26 +1016,24 @@ class ProgramacaoGenetica:
                 if ambiente.verificar_atingir_meta(robo.x, robo.y, robo.raio):
                     fitness += 20000  # Bônus por atingir a meta
 
-                fitness += robo.energia * 80  # Energia como fator proporcional
-                fitness += passos * 10  # 10 pontos por frame onde o robô se move
+                fitness += robo.energia * 80  # Energia proporcional
+                fitness += passos * 15        # 15 pontos por frame onde o robô se move
 
-                # Penalizações (reduzidas)
-                fitness -= robo.colisoes * 500
-                fitness -= tempo_parado * 25
-                fitness -= tempo_sem_progresso * 50
-                fitness -= (recursos_iniciais - robo.recursos_coletados) * 1500
+                # Penalizações (ajustadas)
+                fitness -= robo.colisoes * 300
+                fitness -= tempo_parado * 15
+                fitness -= tempo_sem_progresso * 30
+                fitness -= (recursos_iniciais - robo.recursos_coletados) * 1000
 
-                # Penalizar distância até a meta (se não atingiu)
+                # Penalizar distância até a meta (mais suave)
                 if not ambiente.verificar_atingir_meta(robo.x, robo.y, robo.raio):
                     dist_final = np.sqrt((robo.x - objetivo['x'])**2 + (robo.y - objetivo['y'])**2)
-                    fitness -= dist_final * 5
+                    fitness -= dist_final * 2
 
                 # Garantir que o fitness não seja negativo
                 fitness = max(fitness, 0)
 
                 melhor_fitness = max(melhor_fitness, fitness)
-                
-                individuo.fitness = melhor_fitness
             
             # Atualizar melhor indivíduo
             if individuo.fitness > self.melhor_fitness:
