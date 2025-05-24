@@ -1161,3 +1161,62 @@ if __name__ == "__main__":
     print("A simulação será exibida em uma janela separada.")
     print("Pressione Ctrl+C para fechar a janela quando desejar.")
     simulador.simular() 
+
+        # Gerar gráficos adicionais com base nos dados do log
+    print("Gerando gráficos adicionais...")
+
+    import pandas as pd
+    import numpy as np
+    import re
+
+    # Lê o log e extrai os dados
+    geracoes, melhores, medios, piores = [], [], [], []
+    with open("log.txt", "r", encoding="latin-1") as f:
+        for linha in f:
+            match = re.search(r"Geração (\d+): Melhor=([-+]?[0-9]*\.?[0-9]+), Médio=([-+]?[0-9]*\.?[0-9]+), Pior=([-+]?[0-9]*\.?[0-9]+)", linha)
+            if match:
+                geracoes.append(int(match.group(1)))
+                melhores.append(float(match.group(2)))
+                medios.append(float(match.group(3)))
+                piores.append(float(match.group(4)))
+
+    # Gráfico de linha: Diferença entre melhor e pior
+    diferencas = np.array(melhores) - np.array(piores)
+    plt.figure(figsize=(10, 5))
+    plt.plot(geracoes, diferencas, color='purple', label='Diferença Melhor - Pior')
+    plt.title('Diferença entre Melhor e Pior Fitness por Geração')
+    plt.xlabel('Geração')
+    plt.ylabel('Diferença de Fitness')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('diferenca_melhor_pior.png')
+    plt.close()
+
+    # Boxplot dos valores de fitness
+    df = pd.DataFrame({
+        'Melhor': melhores,
+        'Médio': medios,
+        'Pior': piores
+    })
+    plt.figure(figsize=(10, 6))
+    df.boxplot()
+    plt.title("Boxplot dos Valores de Fitness")
+    plt.ylabel("Fitness")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig('boxplot_fitness.png')
+    plt.close()
+
+    # Histograma dos fitness médios
+    plt.figure(figsize=(10, 6))
+    plt.hist(medios, bins=20, color='skyblue', edgecolor='black')
+    plt.title("Histograma dos Valores Médios de Fitness")
+    plt.xlabel("Fitness Médio")
+    plt.ylabel("Frequência")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig('histograma_fitness_medio.png')
+    plt.close()
+
+    print("Gráficos salvos: 'diferenca_melhor_pior.png', 'boxplot_fitness.png', 'histograma_fitness_medio.png'")
