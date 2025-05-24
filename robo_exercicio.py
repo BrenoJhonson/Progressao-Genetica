@@ -956,7 +956,7 @@ class ProgramacaoGenetica:
                 ultima_posicao = None
                 tempo_parado = 0
                 recursos_iniciais = len(recursos)
-                fitness_base = 10000  # Aumentado significativamente
+                #fitness_base = 10000  # Aumentado significativamente
                 
                 # Limitar número de passos
                 max_passos = 150
@@ -1005,43 +1005,33 @@ class ProgramacaoGenetica:
                     passos += 1
                 
                 # Calcular fitness
-                fitness = fitness_base
-                
-                # Pontos por recursos coletados (aumentado significativamente)
-                recursos_coletados = robo.recursos_coletados
-                fitness += recursos_coletados * 50000  # Aumentado de 3000 para 50000
-                
-                # Bônus por coletar todos os recursos (aumentado significativamente)
-                if recursos_coletados == recursos_iniciais:
-                    fitness += 100000  # Aumentado de 8000 para 100000
-                
-                # Pontos por chegar ao objetivo (aumentado significativamente)
+                #fitness = fitness_base
+                fitness = 0
+
+                # Pontuação positiva
+                fitness += robo.recursos_coletados * 5000  # 5.000 pontos por recurso
+                if robo.recursos_coletados == recursos_iniciais:
+                    fitness += 10000  # Bônus por coletar todos os recursos
+
                 if ambiente.verificar_atingir_meta(robo.x, robo.y, robo.raio):
-                    fitness += 200000  # Aumentado de 10000 para 200000
-                else:
-                    dist_final = np.sqrt((robo.x - objetivo['x'])**2 + (robo.y - objetivo['y'])**2)
-                    fitness += 50000 * (1.0 / (1.0 + dist_final))  # Aumentado de 3000 para 50000
-                
-                # Pontos por energia restante (aumentado)
-                fitness += robo.energia * 100  # Aumentado de 2 para 100
-                
-                # Penalidades (agora como redução de bônus)
-                if ambiente.verificar_colisao(robo.x, robo.y, robo.raio):
-                    fitness *= 0.2  # Reduz mais severamente se colidir (de 0.5 para 0.2)
-                
-                if tempo_parado > 0:
-                    fitness *= (1 - (tempo_parado * 0.1))  # Reduz 10% por unidade de tempo parado (de 5% para 10%)
-                
-                # Penalidade por não coletar todos os recursos
-                fitness *= (1 - ((recursos_iniciais - recursos_coletados) * 0.3))  # Reduz 30% por recurso não coletado (de 20% para 30%)
-                
-                # Penalidade por tempo sem progresso
-                fitness *= (1 - (tempo_sem_progresso * 0.1))  # Reduz 10% por unidade de tempo sem progresso (de 5% para 10%)
-                
-                # Penalidade por não atingir a meta
+                    fitness += 15000  # Bônus por atingir a meta
+
+                fitness += robo.energia * 50  # Energia como fator proporcional
+
+                # Penalizações (subtração simples, sem multiplicação)
+                fitness -= robo.colisoes * 1000
+                fitness -= tempo_parado * 50
+                fitness -= tempo_sem_progresso * 100
+                fitness -= (recursos_iniciais - robo.recursos_coletados) * 3000
+
+                # Penalizar distância até a meta (se não atingiu)
                 if not ambiente.verificar_atingir_meta(robo.x, robo.y, robo.raio):
-                    fitness *= 0.1  # Reduz para 10% se não atingir a meta (de 30% para 10%)
-                
+                    dist_final = np.sqrt((robo.x - objetivo['x'])**2 + (robo.y - objetivo['y'])**2)
+                    fitness -= dist_final * 10
+
+                # Garantir que o fitness não seja negativo
+                fitness = max(fitness, 0)
+
                 melhor_fitness = max(melhor_fitness, fitness)
             
             individuo.fitness = melhor_fitness
@@ -1145,7 +1135,7 @@ if __name__ == "__main__":
     plt.figure(figsize=(10, 6))  # Aumentado tamanho da figura
     plt.plot(historico)
     plt.title('Evolução do Fitness')
-    plt.xlabel('Geração')
+    plt.xlabel('Geracao')
     plt.ylabel('Fitness')
     plt.grid(True)  # Adicionado grid
     plt.savefig('evolucao_fitness_robo.png')
@@ -1165,8 +1155,6 @@ if __name__ == "__main__":
         # Gerar gráficos adicionais com base nos dados do log
     print("Gerando gráficos adicionais...")
 
-    import pandas as pd
-    import numpy as np
     import re
 
     # Lê o log e extrai os dados
@@ -1183,7 +1171,7 @@ if __name__ == "__main__":
     # Gráfico de linha: Diferença entre melhor e pior
     diferencas = np.array(melhores) - np.array(piores)
     plt.figure(figsize=(10, 5))
-    plt.plot(geracoes, diferencas, color='purple', label='Diferença Melhor - Pior')
+    plt.plot(geracoes, diferencas, color='#FFA500', label='Diferença Melhor - Pior')  # Laranja
     plt.title('Diferença entre Melhor e Pior Fitness por Geração')
     plt.xlabel('Geração')
     plt.ylabel('Diferença de Fitness')
