@@ -1009,7 +1009,7 @@ class ProgramacaoGenetica:
                 fitness = 0
 
                 # Pontuação positiva
-                fitness += robo.recursos_coletados * 7500
+                fitness += robo.recursos_coletados * 100
                 if robo.recursos_coletados == recursos_iniciais:
                     fitness += 500  # Bônus por coletar todos os recursos
 
