@@ -1011,10 +1011,10 @@ class ProgramacaoGenetica:
                 # Pontuação positiva
                 fitness += robo.recursos_coletados * 7500
                 if robo.recursos_coletados == recursos_iniciais:
-                    fitness += 15000  # Bônus por coletar todos os recursos
+                    fitness += 500  # Bônus por coletar todos os recursos
 
                 if ambiente.verificar_atingir_meta(robo.x, robo.y, robo.raio):
-                    fitness += 20000  # Bônus por atingir a meta
+                    fitness += 1000  # Bônus por atingir a meta
 
                 fitness += robo.energia * 80  # Energia proporcional
                 fitness += passos * 15        # 15 pontos por frame onde o robô se move
@@ -1034,6 +1034,8 @@ class ProgramacaoGenetica:
                 fitness = max(fitness, 0)
 
                 melhor_fitness = max(melhor_fitness, fitness)
+
+                individuo.fitness = melhor_fitness
             
             # Atualizar melhor indivíduo
             if individuo.fitness > self.melhor_fitness:
