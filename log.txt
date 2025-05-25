@@ -1,0 +1,6 @@
+Geração 1: Melhor Global=249.09, Melhor da Geração=249.09, Médio=-353.41, Pior=-500.00
+Geração 2: Melhor Global=249.09, Melhor da Geração=-116.67, Médio=-362.79, Pior=-500.00
+Geração 3: Melhor Global=249.09, Melhor da Geração=25.68, Médio=-359.66, Pior=-500.00
+Geração 4: Melhor Global=249.09, Melhor da Geração=-2.70, Médio=-354.05, Pior=-500.00
+Geração 5: Melhor Global=428.96, Melhor da Geração=428.96, Médio=-358.01, Pior=-500.00
+Geração 6: Melhor Global=428.96, Melhor da Geração=-73.33, Médio=-371.71, Pior=-500.00
