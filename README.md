@@ -39,7 +39,7 @@ Este projeto implementa um algoritmo de **Programação Genética** para evoluir
 ## 🛠️ Como Executar
 ```bash
 git clone https://github.com/BrenoJhonson/Progressao-Genetica.git
-cd nome-do-repositorio
+cd Progressao-Genetica
 ```
 
 ## Execute o algoritmo genético:
