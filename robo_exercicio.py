@@ -951,9 +951,9 @@ class ProgramacaoGenetica:
 		self.historico_fitness = []
 		self.historico_media_fitness = []  # Novo: histórico da média do fitness
 		self.geracoes_sem_melhoria = 0
-		self.max_geracoes_sem_melhoria = 10
+		self.max_geracoes_sem_melhoria = 15  # Aumentado para dar mais tempo de evolução
 		self.ultimo_fitness = float('-inf')
-		self.melhorias_minimas = 0.01
+		self.melhorias_minimas = 0.005  # Reduzido para ser mais tolerante a pequenas melhorias
 
 	def avaliar_populacao(self):
 		ambiente = Ambiente()
@@ -1074,29 +1074,35 @@ class ProgramacaoGenetica:
 
 	def selecionar(self):
 		# Seleção por torneio com pressão seletiva variável
-		tamanho_torneio = 5 # Aumentado para mais diversidade
+		tamanho_torneio = 3  # Reduzido para menos pressão seletiva
 		selecionados = []
 
 		# Ordenar população por fitness
 		populacao_ordenada = sorted(self.populacao, key=lambda x: x.fitness, reverse=True)
 
-		# Manter os 20% melhores indivíduos (aumentado elitismo)
-		n_elite = max(1, int(self.tamanho_populacao * 0.2))
+		# Manter os 30% melhores indivíduos (aumentado elitismo)
+		n_elite = max(1, int(self.tamanho_populacao * 0.3))
 		selecionados.extend(populacao_ordenada[:n_elite])
 
 		# Selecionar o resto da população por torneio
 		while len(selecionados) < self.tamanho_populacao:
-			# Seleção por torneio
+			# Seleção por torneio com probabilidade proporcional ao fitness
 			torneio = random.sample(self.populacao, tamanho_torneio)
-			vencedor = max(torneio, key=lambda x: x.fitness)
+			# Calcular probabilidades baseadas no fitness
+			fitness_total = sum(ind.fitness for ind in torneio)
+			if fitness_total > 0:
+				probabilidades = [ind.fitness/fitness_total for ind in torneio]
+				vencedor = random.choices(torneio, weights=probabilidades, k=1)[0]
+			else:
+				vencedor = random.choice(torneio)
 			selecionados.append(vencedor.copy())
 
 		return selecionados
 
 	def evoluir(self, n_geracoes=50):
 		# Parâmetros ajustados para melhor exploração
-		taxa_mutacao = 0.3
-		taxa_crossover = 0.8
+		taxa_mutacao = 0.2  # Reduzida para ser mais suave
+		taxa_crossover = 0.9  # Aumentada para mais troca de material genético
 
 		for geracao in range(n_geracoes):
 			print(f"Geração {geracao + 1}/{n_geracoes}")
@@ -1117,16 +1123,16 @@ class ProgramacaoGenetica:
 			if self.geracoes_sem_melhoria >= self.max_geracoes_sem_melhoria:
 				print("Detectada estagnação - aumentando diversidade...")
 				# Aumentar taxa de mutação temporariamente
-				taxa_mutacao = min(0.5, taxa_mutacao * 1.5)
+				taxa_mutacao = min(0.4, taxa_mutacao * 1.3)  # Aumento mais suave
 				# Adicionar mais indivíduos aleatórios
-				n_aleatorios = max(1, int(self.tamanho_populacao * 0.3)) # Aumentado para 30%
+				n_aleatorios = max(1, int(self.tamanho_populacao * 0.2))  # Reduzido para 20%
 				for _ in range(n_aleatorios):
 					novo = IndividuoPG(self.profundidade)
 					self.populacao.append(novo)
 				self.geracoes_sem_melhoria = 0
 				print(f"taxa de mutação: {taxa_mutacao}")
 			else:
-				taxa_mutacao = 0.3 # Resetar taxa de mutação
+				taxa_mutacao = 0.2  # Resetar taxa de mutação
 
 			# Selecionar indivíduos
 			selecionados = self.selecionar()
@@ -1135,7 +1141,7 @@ class ProgramacaoGenetica:
 			nova_populacao = []
 
 			# Elitismo - manter os melhores indivíduos
-			n_elite = max(1, int(self.tamanho_populacao * 0.2))
+			n_elite = max(1, int(self.tamanho_populacao * 0.3))  # Aumentado para 30%
 			nova_populacao.extend(selecionados[:n_elite])
 
 			# Preencher o resto da população
@@ -1149,9 +1155,9 @@ class ProgramacaoGenetica:
 				else:
 					filho = pai1.copy()
 
-				# Mutação
+				# Mutação mais suave
 				if random.random() < taxa_mutacao:
-					filho.mutacao(probabilidade=0.4) # Aumentada probabilidade de mutação por nó
+					filho.mutacao(probabilidade=0.3)  # Reduzida probabilidade de mutação por nó
 
 				nova_populacao.append(filho)
 
@@ -1171,8 +1177,8 @@ if __name__ == "__main__":
 
 	# Criar e treinar o algoritmo genético
 	print("Treinando o algoritmo genético...")
-	pg = ProgramacaoGenetica(tamanho_populacao=150, profundidade=2)
-	melhor_individuo, historico = pg.evoluir(n_geracoes=100)
+	pg = ProgramacaoGenetica(tamanho_populacao=100, profundidade=2)
+	melhor_individuo, historico = pg.evoluir(n_geracoes=50)
 
 	# Salvar o melhor indivíduo
 	print("Salvando o melhor indivíduo...")
