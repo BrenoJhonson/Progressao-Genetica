@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.animation as animation
 import json
-import time
 
 # =====================================================================
 # PARTE 1: ESTRUTURA DA SIMULAÇÃO (NÃO MODIFICAR)
@@ -345,7 +344,6 @@ class Simulador:
 		self.individuo = individuo
 		self.frames = []
 
-		# Configurar matplotlib para melhor visualização
 		plt.style.use('default') # Usar estilo padrão
 		plt.ion() # Modo interativo
 		self.fig, self.ax = plt.subplots(figsize=(12, 8))
