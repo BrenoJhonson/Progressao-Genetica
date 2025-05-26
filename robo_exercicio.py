@@ -951,10 +951,11 @@ class ProgramacaoGenetica:
 		self.melhor_individuo = None
 		self.melhor_fitness = float('-inf')
 		self.historico_fitness = []
+		self.historico_media_fitness = []  # Novo: histórico da média do fitness
 		self.geracoes_sem_melhoria = 0
-		self.max_geracoes_sem_melhoria = 10 # Aumentado para dar mais tempo de evolução
+		self.max_geracoes_sem_melhoria = 10
 		self.ultimo_fitness = float('-inf')
-		self.melhorias_minimas = 0.01 # Melhoria mínima de 1% para considerar evolução
+		self.melhorias_minimas = 0.01
 
 	def avaliar_populacao(self):
 		ambiente = Ambiente()
@@ -1096,7 +1097,7 @@ class ProgramacaoGenetica:
 
 	def evoluir(self, n_geracoes=50):
 		# Parâmetros ajustados para melhor exploração
-		taxa_mutacao = 0.3 # Aumentada para mais diversidade
+		taxa_mutacao = 0.3
 		taxa_crossover = 0.8
 
 		for geracao in range(n_geracoes):
@@ -1105,9 +1106,14 @@ class ProgramacaoGenetica:
 			# Avaliar população
 			self.avaliar_populacao()
 
+			# Calcular média do fitness da população
+			media_fitness = sum(ind.fitness for ind in self.populacao) / len(self.populacao)
+			self.historico_media_fitness.append(media_fitness)
+
 			# Registrar melhor fitness
 			self.historico_fitness.append(self.melhor_fitness)
 			print(f"Melhor fitness: {self.melhor_fitness:.2f}")
+			print(f"Média do fitness: {media_fitness:.2f}")
 
 			# Verificar estagnação
 			if self.geracoes_sem_melhoria >= self.max_geracoes_sem_melhoria:
@@ -1167,9 +1173,8 @@ if __name__ == "__main__":
 
 	# Criar e treinar o algoritmo genético
 	print("Treinando o algoritmo genético...")
-	# PARÂMETROS PARA O ALUNO MODIFICAR
-	pg = ProgramacaoGenetica(tamanho_populacao=100, profundidade=2)  # Reduzido tamanho da população e profundidade
-	melhor_individuo, historico = pg.evoluir(n_geracoes=50)  # Reduzido número de gerações
+	pg = ProgramacaoGenetica(tamanho_populacao=100, profundidade=2)
+	melhor_individuo, historico = pg.evoluir(n_geracoes=50)
 
 	# Salvar o melhor indivíduo
 	print("Salvando o melhor indivíduo...")
@@ -1177,12 +1182,15 @@ if __name__ == "__main__":
 
 	# Plotar evolução do fitness
 	print("Plotando evolução do fitness...")
-	plt.figure(figsize=(10, 5))
-	plt.plot(historico)
-	plt.title('Evolução do Fitness')
+	plt.figure(figsize=(12, 6))
+	plt.plot(historico, label='Melhor Fitness', color='blue', linewidth=2)
+	plt.plot(pg.historico_media_fitness, label='Média do Fitness', color='red', linestyle='--', alpha=0.7)
+	plt.title('Evolução do Fitness ao Longo das Gerações')
 	plt.xlabel('Geração')
 	plt.ylabel('Fitness')
-	plt.savefig('evolucao_fitness_robo.png')
+	plt.grid(True, linestyle='--', alpha=0.7)
+	plt.legend()
+	plt.savefig('evolucao_fitness_robo.png', dpi=300, bbox_inches='tight')
 	plt.close()
 
 	# Simular o melhor indivíduo
