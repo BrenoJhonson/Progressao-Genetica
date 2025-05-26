@@ -266,7 +266,7 @@ class Robo:
 		self.recursos_coletados += recursos_coletados
 
 		# Verificar se atingiu a meta
-		if not self.meta_atingida and ambiente.verificar_atingir_meta(self.x, self.y, self.raio) and recursos_coletados == len(ambiente.recursos):
+		if not self.meta_atingida and ambiente.verificar_atingir_meta(self.x, self.y, self.raio):
 			self.meta_atingida = True
 			# Recuperar energia ao atingir a meta
 			self.energia = min(100, self.energia + 50)
@@ -1004,32 +1004,32 @@ class ProgramacaoGenetica:
 				recursos_coletados = robo.recursos_coletados
 
 				# Bônus base por recursos (progressivo)
-				bonus_recursos = recursos_coletados * 500 # Bônus base por recurso
+				bonus_recursos = recursos_coletados * 100 # Reduzido de 500 para 100
 				# Bônus extra por progresso na coleta
 				if recursos_coletados > 0:
-					bonus_recursos += recursos_coletados * 300 * (recursos_coletados / recursos_ambiente)
+					bonus_recursos += recursos_coletados * 50 * (recursos_coletados / recursos_ambiente) # Reduzido de 300 para 50
 
 				# Penalidade por ir para a meta sem coletar todos os recursos
 				penalidade_meta_prematura = 0
 				if robo.meta_atingida and recursos_coletados < recursos_ambiente:
-					penalidade_meta_prematura = 5000 # Penalidade alta por meta prematura
+					penalidade_meta_prematura = 1000 # Reduzido de 5000 para 1000
 					# Penalidade adicional baseada na quantidade de recursos faltando
 					recursos_faltando = recursos_ambiente - recursos_coletados
-					penalidade_meta_prematura += recursos_faltando * 1000
+					penalidade_meta_prematura += recursos_faltando * 200 # Reduzido de 1000 para 200
 
 				# Penalidades básicas
-				penalidade_colisoes = robo.colisoes * 500  # Penalidade por colisão
-				penalidade_energia = (100 - robo.energia) * 2  # Penalidade por baixa energia
+				penalidade_colisoes = robo.colisoes * 100  # Reduzido de 500 para 100
+				penalidade_energia = (100 - robo.energia) * 0.5  # Reduzido de 2 para 0.5
 				
 				# Novas penalidades e recompensas
-				penalidade_tempo_parado = tempo_parado * 50  # Penalidade por ficar parado
-				penalidade_movimento_irregular = abs(robo.velocidade - 2.0) * 100  # Penalidade por velocidade irregular
-				recompensa_distancia = distancia_total * 0.5  # Recompensa por explorar o ambiente
+				penalidade_tempo_parado = tempo_parado * 10  # Reduzido de 50 para 10
+				penalidade_movimento_irregular = abs(robo.velocidade - 2.0) * 20  # Reduzido de 100 para 20
+				recompensa_distancia = distancia_total * 0.1  # Reduzido de 0.5 para 0.1
 				
 				# Penalidade por ficar muito tempo sem coletar recursos
 				penalidade_tempo_sem_coleta = 0
 				if recursos_coletados == 0:
-					penalidade_tempo_sem_coleta = ambiente.tempo * 2
+					penalidade_tempo_sem_coleta = ambiente.tempo * 0.5 # Reduzido de 2 para 0.5
 
 				# Cálculo base do fitness
 				fitness = (
@@ -1045,17 +1045,17 @@ class ProgramacaoGenetica:
 				# Bônus por completar o objetivo corretamente
 				if recursos_coletados == recursos_ambiente:
 					if robo.meta_atingida:
-						fitness += 20000 # Bônus alto por completar tudo
+						fitness += 2000 # Reduzido de 20000 para 2000
 						# Bônus extra por completar rápido
-						fitness += max(0, 5000 - ambiente.tempo * 10)
+						fitness += max(0, 500 - ambiente.tempo * 2) # Reduzido de 5000 para 500
 						# Bônus extra por eficiência energética
-						fitness += robo.energia * 10
+						fitness += robo.energia * 2 # Reduzido de 10 para 2
 
 				# Penalidade por tempo (ajustada para incentivar completar rápido)
-				fitness -= ambiente.tempo * 1.0
+				fitness -= ambiente.tempo * 0.2 # Reduzido de 1.0 para 0.2
     
 				if robo.colisoes == 0:
-					fitness *= 1000;
+					fitness *= 2 # Reduzido de 1000 para 2
 
 				# Garantir que o fitness seja um número válido e não negativo
 				individuo.fitness = max(0, fitness) if np.isfinite(fitness) else 0
